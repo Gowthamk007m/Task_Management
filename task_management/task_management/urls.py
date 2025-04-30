@@ -23,6 +23,4 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('tasks.urls')),
     path('', template_views.home, name='home'),
-
-
 ]

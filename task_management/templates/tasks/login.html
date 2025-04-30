@@ -24,5 +24,26 @@
         </div>
         <button type="submit" class="btn btn-primary w-100">Login</button>
     </form>
+
+    <div class="alert alert-info mt-2">
+        <strong>Test Users:</strong><br>
+        <div class="d-flex flex-wrap gap-2 mt-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="fillCredentials('superadmin', '1234')">Login as Superadmin</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="fillCredentials('admin', '1234')">Login as Admin</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="fillCredentials('user1', '1234')">Login as User1</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="fillCredentials('user2', '1234')">Login as User2</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="fillCredentials('user3', '1234')">Login as User3</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="fillCredentials('user4', '1234')">Login as User4</button>
+        </div>
+    </div>
+    
+    
 </div>
+<script>
+    function fillCredentials(username, password) {
+        document.getElementById('id_username').value = username;
+        document.getElementById('id_password').value = password;
+    }
+</script>
+
 {% endblock %}
