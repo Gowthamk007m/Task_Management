@@ -53,15 +53,19 @@
                         </li>
                         {% endif %}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 {{ user.username }}
                             </a>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item" href="#">Profile</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
-                            </div>
+                            <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                                <li>
+                                    <form action="{% url 'logout' %}" method="post" class="px-3">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item">Logout</button>
+                                    </form>
+                                </li>
+                            </ul>
                         </li>
+                        
                     {% else %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'login' %}">Login</a>

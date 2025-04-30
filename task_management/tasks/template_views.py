@@ -7,11 +7,11 @@ from .models import Task, UserProfile
 from .forms import TaskForm, TaskUpdateForm
 from .permissions import is_admin, is_super_admin
 from django.utils import timezone
-
+from django.utils.dateparse import parse_date
+from django.db.models import Q
 
 # Dashboard/Home view
 @login_required
-
 def home(request):
     user = request.user
     is_admin_user = is_admin(user)
@@ -31,7 +31,9 @@ def home(request):
         'tasks': tasks,
         'next_due_task': tasks.order_by('due_date').first(),
         'recent_tasks': tasks.order_by('-created_at')[:5],
+        'completed_tasks': tasks.filter(status='COMPLETED')[:5],
         'due_soon_tasks': tasks.order_by('due_date')[:5],
+        'pending_tasks': tasks.filter(status='PENDING')[:5],
         'now': timezone.now(),
     }
 
@@ -64,18 +66,26 @@ def user_detail(request, pk):
 # Task management views
 @login_required
 def task_list(request):
-    """View all tasks based on user role"""
+    """View all tasks based on user role, with optional filtering"""
     user = request.user
     
     if is_admin(user) or is_super_admin(user):
-        # Admins see all tasks
         tasks = Task.objects.all()
     else:
-        # Regular users see only their tasks
         tasks = Task.objects.filter(assigned_to=user)
-    
-    return render(request, 'tasks/task_list.html', {'tasks': tasks})
 
+    # Apply optional filters from GET parameters
+    status = request.GET.get('status')
+    if status:
+        tasks = tasks.filter(status=status)
+
+    due_date = request.GET.get('due_date')
+    if due_date:
+        parsed_date = parse_date(due_date)
+        if parsed_date:
+            tasks = tasks.filter(due_date=parsed_date)
+
+    return render(request, 'tasks/task_list.html', {'tasks': tasks})
 
 @login_required
 def task_detail(request, pk):

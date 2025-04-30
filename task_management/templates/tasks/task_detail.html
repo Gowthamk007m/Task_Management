@@ -1,4 +1,4 @@
-{% extends 'taskmanager/base.html' %}
+{% extends 'tasks/base.html' %}
 
 {% block title %}{{ task.title }} - Task Manager{% endblock %}
 
@@ -26,8 +26,7 @@
                     </span>
                 </div>
                 <div class="card-body">
-                    <h6 class="card-subtitle mb-3 text-muted">Description</h6>
-                    <p class="card-text">{{ task.description|linebreaks }}</p>
+              
                     
                     {% if task.status == 'COMPLETED' and task.completion_report %}
                     <div class="mt-4">
@@ -73,12 +72,7 @@
                                 {{ task.due_date|date:"M d, Y"|default:"No due date" }}
                             </span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>Priority:</span>
-                            <span class="badge bg-{% if task.priority == 'HIGH' %}danger{% elif task.priority == 'MEDIUM' %}warning{% else %}success{% endif %}">
-                                {{ task.get_priority_display }}
-                            </span>
-                        </li>
+                      
                         <li class="list-group-item d-flex justify-content-between">
                             <span>Created On:</span>
                             <span>{{ task.created_at|date:"M d, Y" }}</span>
@@ -94,37 +88,7 @@
             </div>
             
             <!-- Status Timeline Card -->
-            <div class="card mb-4">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">Status Timeline</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">
-                            <div class="d-flex justify-content-between">
-                                <span>Created</span>
-                                <span>{{ task.created_at|date:"M d, Y" }}</span>
-                            </div>
-                        </li>
-                        {% if task.status == 'IN_PROGRESS' or task.status == 'COMPLETED' %}
-                        <li class="list-group-item list-group-item-primary">
-                            <div class="d-flex justify-content-between">
-                                <span>Started</span>
-                                <span>{{ task.updated_at|date:"M d, Y" }}</span>
-                            </div>
-                        </li>
-                        {% endif %}
-                        {% if task.status == 'COMPLETED' %}
-                        <li class="list-group-item list-group-item-success">
-                            <div class="d-flex justify-content-between">
-                                <span>Completed</span>
-                                <span>{{ task.updated_at|date:"M d, Y" }}</span>
-                            </div>
-                        </li>
-                        {% endif %}
-                    </ul>
-                </div>
-            </div>
+         
         </div>
     </div>
 </div>

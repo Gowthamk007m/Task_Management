@@ -21,10 +21,19 @@
                                 <p class="text-muted mb-0">Total Tasks</p>
                             </div>
                         </div>
+                        <!-- pending tasks -->
                         <div class="col-md-4">
                             <div class="border rounded p-3 mb-3">
-                                <h3>{{ next_due_task.due_date|date:"M d, Y"|default:"--" }}</h3>
-                                <p class="text-muted mb-0">Next Due Date</p>
+                                <h3>{{ pending_tasks.count|default:"0" }}</h3>
+                                <p class="text-muted mb-0">Pending</p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                           <!-- completed tasks -->
+                            <div class="border rounded p-3 mb-3">
+                                <h3>{{ completed_tasks.count|default:"0" }}</h3>
+                                <p class="text-muted mb-0">Completed</p>
                             </div>
                         </div>
                     
@@ -44,7 +53,7 @@
                 <div class="card-body">
                     <div class="list-group">
                         {% for task in recent_tasks %}
-                        <a href="{% url 'task_detail' task.pk %}" class="list-group-item list-group-item-action  task-status-{{ task.status }}">
+                        <a href="{% url 'task_detail' task.pk %}" class="list-group-item  task-status-{{ task.status }}">
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">{{ task.title }}</h5>
                                 <small>{{ task.created_at|date:"M d, Y" }}</small>
@@ -52,7 +61,7 @@
                             <p class="mb-1">{{ task.description|truncatechars:100 }}</p>
                             <div class="d-flex justify-content-between">
                                 <small>Assigned to: <span class="text-primary">{{ task.assigned_to.username }}</span></small>
-                                <small class="badge bg-{{ task.status|lower }}">{{ task.get_status_display }}</small>
+                                <small class="badge bg-{{ task.status|lower }} text-primary">{{ task.get_status_display }}</small>
                             </div>
                         </a>
                         {% empty %}
@@ -89,6 +98,9 @@
                 </div>
             </div>
         </div>
+
+
+        
     </div>
 
     {% if is_admin or is_super_admin %}
@@ -103,7 +115,8 @@
                     <div class="d-flex justify-content-around">
                         <a href="{% url 'task_create' %}" class="btn btn-primary">Create New Task</a>
                         {% if is_super_admin %}
-                        <a href="{% url 'user_list' %}" class="btn btn-secondary">Manage Users</a>
+                        <a href="/admin/auth/user/" class="btn btn-secondary">Manage Users</a>
+
                         {% endif %}
                     </div>
                 </div>
