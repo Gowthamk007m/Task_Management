@@ -1,0 +1,89 @@
+{% extends 'taskmanager/base.html' %}
+
+{% block title %}{{ action }} Task - Task Manager{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{{ action }} Task</h1>
+        <a href="{% if task %}{% url 'task_detail' task.pk %}{% else %}{% url 'task_list' %}{% endif %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> 
+            {% if task %}Back to Task{% else %}Back to List{% endif %}
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Task Form</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            {{ field|add_class:"form-control" }}
+                            {% if field.errors %}
+                            <div class="text-danger">
+                                {% for error in field.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            {% if field.help_text %}
+                            <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% if task %}{% url 'task_detail' task.pk %}{% else %}{% url 'task_list' %}{% endif %}" class="btn btn-outline-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Task</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Script to handle conditional display of completion fields
+    document.addEventListener('DOMContentLoaded', function() {
+        const statusField = document.querySelector('select[name="status"]');
+        const completionReportField = document.querySelector('#id_completion_report').closest('.mb-3');
+        const workedHoursField = document.querySelector('#id_worked_hours').closest('.mb-3');
+        
+        // Initial check
+        toggleCompletionFields();
+        
+        // Event listener
+        if (statusField) {
+            statusField.addEventListener('change', toggleCompletionFields);
+        }
+        
+        function toggleCompletionFields() {
+            if (statusField && statusField.value === 'COMPLETED') {
+                if (completionReportField) completionReportField.style.display = 'block';
+                if (workedHoursField) workedHoursField.style.display = 'block';
+            } else {
+                if (completionReportField) completionReportField.style.display = 'none';
+                if (workedHoursField) workedHoursField.style.display = 'none';
+            }
+        }
+    });
+</script>
+{% endblock %}

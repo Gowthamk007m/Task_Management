@@ -1,0 +1,119 @@
+{% extends 'tasks/base.html' %}
+
+{% block title %}Tasks - Task Manager{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Tasks</h1>
+        {% if user.profile.role == 'ADMIN' or user.profile.role == 'SUPER_ADMIN' %}
+        <a href="{% url 'task_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i> Create Task
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Filters</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All</option>
+                        <option value="PENDING" {% if request.GET.status == 'PENDING' %}selected{% endif %}>Pending</option>
+                        <option value="IN_PROGRESS" {% if request.GET.status == 'IN_PROGRESS' %}selected{% endif %}>In Progress</option>
+                        <option value="COMPLETED" {% if request.GET.status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Priority</label>
+                    <select name="priority" class="form-select">
+                        <option value="">All</option>
+                        <option value="HIGH" {% if request.GET.priority == 'HIGH' %}selected{% endif %}>High</option>
+                        <option value="MEDIUM" {% if request.GET.priority == 'MEDIUM' %}selected{% endif %}>Medium</option>
+                        <option value="LOW" {% if request.GET.priority == 'LOW' %}selected{% endif %}>Low</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Due Date</label>
+                    <input type="date" name="due_date" class="form-control" value="{{ request.GET.due_date|default:'' }}">
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">Filter</button>
+                    <a href="{% url 'task_list' %}" class="btn btn-outline-secondary">Reset</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Task List -->
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Task List</h5>
+                <span class="badge bg-secondary">{{ tasks.count }} tasks</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Title</th>
+                            <th>Assigned To</th>
+                            <th>Priority</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for task in tasks %}
+                        <tr class="task-priority-{{ task.priority }} task-status-{{ task.status }}">
+                            <td>{{ task.title }}</td>
+                            <td>{{ task.assigned_to.username }}</td>
+                            <td>
+                                <span class="badge bg-{% if task.priority == 'HIGH' %}danger{% elif task.priority == 'MEDIUM' %}warning{% else %}success{% endif %}">
+                                    {{ task.get_priority_display }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if task.due_date %}
+                                <span class="{% if task.due_date|date:'U' < now|date:'U' %}text-danger{% endif %}">
+                                    {{ task.due_date|date:"M d, Y" }}
+                                </span>
+                                {% else %}
+                                <span class="text-muted">No due date</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-{% if task.status == 'PENDING' %}secondary{% elif task.status == 'IN_PROGRESS' %}primary{% else %}success{% endif %}">
+                                    {{ task.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'task_detail' task.pk %}" class="btn btn-outline-primary">View</a>
+                                    <a href="{% url 'task_update' task.pk %}" class="btn btn-outline-secondary">Edit</a>
+                                    {% if task.status == 'COMPLETED' and user.profile.role == 'ADMIN' or user.profile.role == 'SUPER_ADMIN' %}
+                                    <a href="{% url 'task_report' task.pk %}" class="btn btn-outline-info">Report</a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">No tasks found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends 'taskmanager/base.html' %}
+
+{% block title %}Task Report - {{ task.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Task Report</h1>
+        <div>
+            <a href="{% url 'task_detail' task.pk %}" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left me-1"></i> Back to Task
+            </a>
+            <button class="btn btn-primary" onclick="window.print()">
+                <i class="bi bi-printer me-1"></i> Print Report
+            </button>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">{{ task.title }}</h5>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h6 class="text-muted">Task Information</h6>
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <th width="30%">Task ID</th>
+                                <td>{{ task.pk }}</td>
+                            </tr>
+                            <tr>
+                                <th>Status</th>
+                                <td>
+                                    <span class="badge bg-success">{{ task.get_status_display }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Priority</th>
+                                <td>
+                                    <span class="badge bg-{% if task.priority == 'HIGH' %}danger{% elif task.priority == 'MEDIUM' %}warning{% else %}success{% endif %}">
+                                        {{ task.get_priority_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Created By</th>
+                                <td>{{ task.created_by.username }}</td>
+                            </tr>
+                            <tr>
+                                <th>Assigned To</th>
+                                <td>{{ task.assigned_to.username }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="col-md-6">
+                    <h6 class="text-muted">Timeline</h6>
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <th width="30%">Created On</th>
+                                <td>{{ task.created_at|date:"F d, Y H:i" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Due Date</th>
+                                <td>{{ task.due_date|date:"F d, Y"|default:"No due date" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Completed On</th>
+                                <td>{{ task.updated_at|date:"F d, Y H:i" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Worked Hours</th>
+                                <td>{{ task.worked_hours|default:"Not specified" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Time Efficiency</th>
+                                <td>
+                                    {% if task.worked_hours %}
+                                        {% if task.worked_hours <= 8 %}
+                                            <span class="text-success">Excellent</span>
+                                        {% elif task.worked_hours <= 16 %}
+                                            <span class="text-primary">Good</span>
+                                        {% elif task.worked_hours <= 24 %}
+                                            <span class="text-warning">Average</span>
+                                        {% else %}
+                                            <span class="text-danger">Below Average</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">Not applicable</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <h6 class="text-muted">Task Description</h6>
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            {{ task.description|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <h6 class="text-muted">Completion Report</h6>
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            {{ task.completion_report|linebreaks|default:"No completion report provided." }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <p class="mb-0 text-center text-muted">Report generated on {% now "F d, Y H:i" %}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

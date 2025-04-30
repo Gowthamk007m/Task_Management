@@ -19,7 +19,7 @@ def update_user_permissions_on_role_change(sender, instance, **kwargs):
 
     if role == 'ADMIN':
         user.is_staff = True
-        assign_task_permissions(user)  # Optional, if you have custom perms
+        assign_task_permissions(user) 
     else:
         user.is_staff = False
         user.user_permissions.clear()

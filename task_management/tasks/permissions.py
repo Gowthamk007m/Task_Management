@@ -27,3 +27,10 @@ class IsTaskAdmin(permissions.BasePermission):
             # For simplicity, we're assuming admins can access all tasks
             return True
         return False
+    
+
+def is_admin(user):
+    return hasattr(user, 'profile') and user.profile.role in ['ADMIN', 'SUPERADMIN']
+
+def is_super_admin(user):
+    return hasattr(user, 'profile') and user.profile.role == 'SUPERADMIN'

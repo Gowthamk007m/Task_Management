@@ -69,7 +69,7 @@ ROOT_URLCONF = 'task_management.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR/ 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -136,3 +136,11 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+# settings.py
+
+LOGIN_URL = 'login'  # Named URL for login view
+LOGIN_REDIRECT_URL = 'dashboard'  # After successful login
+LOGOUT_REDIRECT_URL = 'login'  # After logout

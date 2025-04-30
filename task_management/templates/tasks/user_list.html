@@ -1,0 +1,79 @@
+{% extends 'taskmanager/base.html' %}
+
+{% block title %}Users - Task Manager{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>User Management</h1>
+        <a href="#" class="btn btn-primary">
+            <i class="bi bi-person-plus me-1"></i> Add User
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">User List</h5>
+                <span class="badge bg-secondary">{{ users.count }} users</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.first_name|default:"-" }}</td>
+                            <td>{{ user.last_name|default:"-" }}</td>
+                            <td>
+                                {% if user.profile.role == 'SUPER_ADMIN' %}
+                                <span class="badge bg-danger">Super Admin</span>
+                                {% elif user.profile.role == 'ADMIN' %}
+                                <span class="badge bg-warning">Admin</span>
+                                {% else %}
+                                <span class="badge bg-primary">User</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-{% if user.is_active %}success{% else %}danger{% endif %}">
+                                    {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'user_detail' user.pk %}" class="btn btn-outline-primary">View</a>
+                                    <a href="#" class="btn btn-outline-secondary">Edit</a>
+                                    {% if user.is_active %}
+                                    <button type="button" class="btn btn-outline-danger">Deactivate</button>
+                                    {% else %}
+                                    <button type="button" class="btn btn-outline-success">Activate</button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4">No users found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

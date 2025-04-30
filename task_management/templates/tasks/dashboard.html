@@ -1,0 +1,115 @@
+{% extends 'tasks/base.html' %}
+
+{% block title %}Dashboard - Task Manager{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Dashboard</h1>
+    
+    <div class="row">
+        <!-- Task Stats Summary -->
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Task Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <div class="border rounded p-3 mb-3">
+                                <h3>{{ tasks.count }}</h3>
+                                <p class="text-muted mb-0">Total Tasks</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="border rounded p-3 mb-3">
+                                <h3>{{ next_due_task.due_date|date:"M d, Y"|default:"--" }}</h3>
+                                <p class="text-muted mb-0">Next Due Date</p>
+                            </div>
+                        </div>
+                    
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Tasks -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Recent Tasks</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for task in recent_tasks %}
+                        <a href="{% url 'task_detail' task.pk %}" class="list-group-item list-group-item-action  task-status-{{ task.status }}">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ task.title }}</h5>
+                                <small>{{ task.created_at|date:"M d, Y" }}</small>
+                            </div>
+                            <p class="mb-1">{{ task.description|truncatechars:100 }}</p>
+                            <div class="d-flex justify-content-between">
+                                <small>Assigned to: <span class="text-primary">{{ task.assigned_to.username }}</span></small>
+                                <small class="badge bg-{{ task.status|lower }}">{{ task.get_status_display }}</small>
+                            </div>
+                        </a>
+                        {% empty %}
+                        <p class="text-muted text-center my-3">No tasks available</p>
+                        {% endfor %}
+                    </div>
+                    <a href="{% url 'task_list' %}" class="btn btn-sm btn-outline-primary mt-3">View All Tasks</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Due Soon -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Tasks Due Soon</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for task in due_soon_tasks %}
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ task.title }}</h5>
+                                <small class="text-{% if task.due_date and task.due_date|date:'U' < now|date:'U' %}danger{% else %}warning{% endif %}">
+                                    Due: {{ task.due_date|date:"M d, Y" }}
+                                </small>
+                            </div>
+                            <p class="mb-1">{{ task.description|truncatechars:100 }}</p>
+                         
+                        </a>
+                        {% empty %}
+                        <p class="text-muted text-center my-3">No tasks due soon</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if is_admin or is_super_admin %}
+    <!-- Admin section -->
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="card-title mb-0">Admin Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-around">
+                        <a href="{% url 'task_create' %}" class="btn btn-primary">Create New Task</a>
+                        {% if is_super_admin %}
+                        <a href="{% url 'user_list' %}" class="btn btn-secondary">Manage Users</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

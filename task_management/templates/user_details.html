@@ -1,0 +1,165 @@
+{% extends 'taskmanager/base.html' %}
+
+{% block title %}{{ user.username }} - Task Manager{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>User Details</h1>
+        <div>
+            <a href="{% url 'user_list' %}" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left me-1"></i> Back to List
+            </a>
+            <a href="#" class="btn btn-primary">
+                <i class="bi bi-pencil me-1"></i> Edit User
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">User Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4 text-center">
+                        <div class="display-1 mb-3 text-primary">
+                            <i class="bi bi-person-circle"></i>
+                        </div>
+                        <h4>{{ user.username }}</h4>
+                        <span class="badge bg-{% if user.is_active %}success{% else %}danger{% endif %}">
+                            {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                        {% if user.profile.role == 'SUPER_ADMIN' %}
+                        <span class="badge bg-danger ms-1">Super Admin</span>
+                        {% elif user.profile.role == 'ADMIN' %}
+                        <span class="badge bg-warning ms-1">Admin</span>
+                        {% else %}
+                        <span class="badge bg-primary ms-1">User</span>
+                        {% endif %}
+                    </div>
+
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th width="30%">Username</th>
+                                <td>{{ user.username }}</td>
+                            </tr>
+                            <tr>
+                                <th>Email</th>
+                                <td>{{ user.email|default:"Not set" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Full Name</th>
+                                <td>
+                                    {% if user.first_name or user.last_name %}
+                                        {{ user.first_name }} {{ user.last_name }}
+                                    {% else %}
+                                        Not set
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Role</th>
+                                <td>
+                                    {% if user.profile.role == 'SUPER_ADMIN' %}
+                                        Super Admin
+                                    {% elif user.profile.role == 'ADMIN' %}
+                                        Admin
+                                    {% else %}
+                                        Regular User
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Date Joined</th>
+                                <td>{{ user.date_joined|date:"F d, Y" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Last Login</th>
+                                <td>{{ user.last_login|date:"F d, Y H:i"|default:"Never" }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="d-flex gap-2 mt-3">
+                        <a href="#" class="btn btn-primary">Edit Profile</a>
+                        {% if user.is_active %}
+                        <button type="button" class="btn btn-outline-danger">Deactivate Account</button>
+                        {% else %}
+                        <button type="button" class="btn btn-outline-success">Activate Account</button>
+                        {% endif %}
+                        {% if user.profile.role == 'USER' %}
+                        <button type="button" class="btn btn-outline-warning">Promote to Admin</button>
+                        {% elif user.profile.role == 'ADMIN' %}
+                        <button type="button" class="btn btn-outline-secondary">Demote to User</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Task Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-3">
+                            <div class="border rounded p-3">
+                                <h3>{{ user.task_set.count }}</h3>
+                                <p class="text-muted mb-0">Total Tasks</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="border rounded p-3">
+                                <h3>{{ user.task_set.completed.count|default:"0" }}</h3>
+                                <p class="text-muted mb-0">Completed</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="border rounded p-3">
+                                <h3>{{ user.task_set.pending.count|default:"0" }}</h3>
+                                <p class="text-muted mb-0">Pending</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <h6>Recent Tasks</h6>
+                    <div class="list-group mt-3">
+                        {% for task in user.task_set.all|dictsortby:"-created_at"|slice:":5" %}
+                        <a href="{% url 'task_detail' task.pk %}" class="list-group-item list-group-item-action flex-column align-items-start">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ task.title }}</h6>
+                                <small>{{ task.created_at|date:"M d" }}</small>
+                            </div>
+                            <p class="mb-1 text-muted small">{{ task.description|truncatechars:80 }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">Due: {{ task.due_date|date:"M d, Y"|default:"No due date" }}</small>
+                                <span class="badge bg-{% if task.status == 'PENDING' %}secondary{% elif task.status == 'IN_PROGRESS' %}primary{% else %}success{% endif %} rounded-pill">
+                                    {{ task.get_status_display }}
+                                </span>
+                            </div>
+                        </a>
+                        {% empty %}
+                        <div class="text-center py-3 text-muted">
+                            No tasks assigned to this user.
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if user.task_set.all %}
+                    <div class="mt-3">
+                        <a href="{% url 'task_list' %}?assigned_to={{ user.pk }}" class="btn btn-outline-primary">View All Tasks</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

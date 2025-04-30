@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Task Manager{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        .sidebar {
+            min-height: calc(100vh - 56px);
+            background-color: #f8f9fa;
+        }
+        .task-priority-HIGH {
+            border-left: 4px solid #dc3545;
+        }
+        .task-priority-MEDIUM {
+            border-left: 4px solid #ffc107;
+        }
+        .task-priority-LOW {
+            border-left: 4px solid #28a745;
+        }
+        .task-status-PENDING {
+            background-color: #f8f9fa;
+        }
+        .task-status-IN_PROGRESS {
+            background-color: #e9ecef;
+        }
+        .task-status-COMPLETED {
+            background-color: #d1e7dd;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">Task Manager</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'task_list' %}">Tasks</a>
+                        </li>
+                        {% if user.profile.role == 'SUPER_ADMIN' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'user_list' %}">Users</a>
+                        </li>
+                        {% endif %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                {{ user.username }}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a class="dropdown-item" href="#">Profile</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                            </div>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Login</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid py-4">
+        <div class="row">
+            {% if user.is_authenticated %}
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar py-3">
+                <div class="list-group">
+                    <a href="{% url 'home' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                        Dashboard
+                    </a>
+                    <a href="{% url 'task_list' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'task_list' %}active{% endif %}">
+                        My Tasks
+                    </a>
+                    {% if user.profile.role == 'ADMIN' or user.profile.role == 'SUPER_ADMIN' %}
+                    <a href="{% url 'task_create' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'task_create' %}active{% endif %}">
+                        Create Task
+                    </a>
+                    {% endif %}
+                    {% if user.profile.role == 'SUPER_ADMIN' %}
+                    <a href="{% url 'user_list' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'user_list' %}active{% endif %}">
+                        Manage Users
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <!-- Content -->
+            <div class="col-md-9 col-lg-10">
+            {% else %}
+            <div class="col-12">
+            {% endif %}
+                <!-- Messages -->
+                {% if messages %}
+                <div class="messages mb-4">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <!-- Page Content -->
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-3 mt-5">
+        <div class="container">
+            <p class="text-center mb-0">Task Manager &copy; {% now "Y" %}</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
